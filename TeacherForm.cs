@@ -122,7 +122,9 @@ namespace Project_College_App
 
         private void BtnSave_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtUsername.Text) || string.IsNullOrWhiteSpace(txtEmail.Text))
+            if (string.IsNullOrWhiteSpace(txtUsername.Text) || 
+                string.IsNullOrWhiteSpace(txtEmail.Text) ||
+                (!userId.HasValue && string.IsNullOrWhiteSpace(txtPassword.Text)))
             {
                 MessageBox.Show("Please fill in all required fields.", "Validation Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -135,32 +137,35 @@ namespace Project_College_App
                 try
                 {
                     conn.Open();
-                    SqlCommand cmd;
-
+                    string query;
                     if (userId.HasValue)
                     {
-                        string query = "UPDATE Users SET Username = @Username, Email = @Email";
-                        if (!string.IsNullOrEmpty(txtPassword.Text))
-                            query += ", Password = HASHBYTES('SHA2_256', @Password)";
-                        query += " WHERE UserID = @UserID";
-
-                        cmd = new SqlCommand(query, conn);
-                        cmd.Parameters.AddWithValue("@UserID", userId);
+                        query = @"UPDATE Users SET Username = @Username, Email = @Email 
+                                 WHERE UserID = @UserID";
                     }
                     else
                     {
-                        cmd = new SqlCommand(@"INSERT INTO Users (Username, Email, Password, Role, CreatedAt) 
-                                             VALUES (@Username, @Email, HASHBYTES('SHA2_256', @Password), 'Teacher', GETDATE())", conn);
+                        query = @"INSERT INTO Users (Username, Email, Password, Role, CreatedAt) 
+                                 VALUES (@Username, @Email, @Password, 'Teacher', GETDATE())";
                     }
 
-                    cmd.Parameters.AddWithValue("@Username", txtUsername.Text);
-                    cmd.Parameters.AddWithValue("@Email", txtEmail.Text);
-                    if (!string.IsNullOrEmpty(txtPassword.Text))
-                        cmd.Parameters.AddWithValue("@Password", txtPassword.Text);
+                    using (var cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@Username", txtUsername.Text);
+                        cmd.Parameters.AddWithValue("@Email", txtEmail.Text);
+                        if (!userId.HasValue)
+                        {
+                            cmd.Parameters.AddWithValue("@Password", txtPassword.Text);
+                        }
+                        if (userId.HasValue)
+                        {
+                            cmd.Parameters.AddWithValue("@UserID", userId.Value);
+                        }
 
-                    cmd.ExecuteNonQuery();
-                    this.DialogResult = DialogResult.OK;
-                    this.Close();
+                        cmd.ExecuteNonQuery();
+                        DialogResult = DialogResult.OK;
+                        Close();
+                    }
                 }
                 catch (Exception ex)
                 {

@@ -5,6 +5,8 @@ using Guna.UI2.WinForms;
 using FontAwesome.Sharp;
 using System.Runtime.InteropServices;
 using System.Data.SqlClient;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Project_College_App
 {
@@ -332,7 +334,7 @@ namespace Project_College_App
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("@Username", username);
-                        cmd.Parameters.AddWithValue("@Password", password);
+                        cmd.Parameters.AddWithValue("@Password", HashPassword(password));
                         cmd.Parameters.AddWithValue("@Role", role);
                         
                         using (SqlDataReader reader = cmd.ExecuteReader())
@@ -381,12 +383,36 @@ namespace Project_College_App
             }
         }
 
+        private string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return Convert.ToBase64String(hashedBytes);
+            }
+        }
+
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             base.OnFormClosing(e);
             if (e.CloseReason == CloseReason.UserClosing && Application.OpenForms.Count == 1)
             {
                 Application.Exit();
+            }
+        }
+
+        private bool ValidateUserInput(string username, string email)
+        {
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(email))
+                return false;
+            
+            // Add email format validation
+            try {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch {
+                return false;
             }
         }
     }

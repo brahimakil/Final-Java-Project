@@ -12,3 +12,11 @@ C:\Users\ibrahim\source\repos\Project College App\Project College App\obj\Debug\
 C:\Users\ibrahim\source\repos\Project College App\Project College App\obj\Debug\Project .BFF5CEAB.Up2Date
 C:\Users\ibrahim\source\repos\Project College App\Project College App\obj\Debug\Project College App.exe
 C:\Users\ibrahim\source\repos\Project College App\Project College App\obj\Debug\Project College App.pdb
+C:\Users\ibrahim\source\repos\Project College app 2\obj\Debug\Project College App.csproj.AssemblyReference.cache
+C:\Users\ibrahim\source\repos\Project College app 2\obj\Debug\Project_College_App.AdminDashboard.resources
+C:\Users\ibrahim\source\repos\Project College app 2\obj\Debug\Project_College_App.Form1.resources
+C:\Users\ibrahim\source\repos\Project College app 2\obj\Debug\Project_College_App.Properties.Resources.resources
+C:\Users\ibrahim\source\repos\Project College app 2\obj\Debug\Project College App.csproj.GenerateResource.cache
+C:\Users\ibrahim\source\repos\Project College app 2\obj\Debug\Project College App.csproj.CoreCompileInputs.cache
+C:\Users\ibrahim\source\repos\Project College app 2\obj\Debug\Project College App.exe
+C:\Users\ibrahim\source\repos\Project College app 2\obj\Debug\Project College App.pdb
