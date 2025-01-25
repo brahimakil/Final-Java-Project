@@ -20,3 +20,29 @@ C:\Users\ibrahim\source\repos\Project College app 2\obj\Debug\Project College Ap
 C:\Users\ibrahim\source\repos\Project College app 2\obj\Debug\Project College App.csproj.CoreCompileInputs.cache
 C:\Users\ibrahim\source\repos\Project College app 2\obj\Debug\Project College App.exe
 C:\Users\ibrahim\source\repos\Project College app 2\obj\Debug\Project College App.pdb
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\Project College App.exe.config
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\Project College App.exe
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\Project College App.pdb
+C:\Users\ibrahim\source\repos\Project College app 2\obj\Debug\Project .BFF5CEAB.Up2Date
+C:\Users\ibrahim\source\repos\Project College app 2\obj\Debug\Project College App.csproj.SuggestedBindingRedirects.cache
+C:\Users\ibrahim\source\repos\Project College app 2\obj\Debug\Project College App.exe.config
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\System.Buffers.dll
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\System.IO.Pipelines.dll
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\System.Memory.dll
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\System.Numerics.Vectors.dll
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\System.Text.Encodings.Web.dll
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\System.Text.Json.dll
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\System.Threading.Tasks.Extensions.dll
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\System.ValueTuple.dll
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\Microsoft.Bcl.AsyncInterfaces.xml
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\System.Buffers.xml
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\System.IO.Pipelines.xml
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\System.Memory.xml
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\System.Numerics.Vectors.xml
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\System.Text.Encodings.Web.xml
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\System.Text.Json.xml
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\System.Threading.Tasks.Extensions.xml
+C:\Users\ibrahim\source\repos\Project College app 2\bin\Debug\System.ValueTuple.xml

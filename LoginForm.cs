@@ -324,26 +324,28 @@ namespace Project_College_App
 
         private bool ValidateLogin(string username, string password, string role)
         {
-            string connectionString = @"Server=desktop-hm9h3t3\sqlexpress;Database=QuizMakerDB;Initial Catalog=QuizMakerDB;Integrated Security=True;TrustServerCertificate=True;";
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            string connectionString = @"Server=desktop-hm9h3t3\sqlexpress;Database=QuizMakerDB;Integrated Security=True;TrustServerCertificate=True;";
+            using (var conn = new SqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
-                    string query = "SELECT UserID, Username FROM Users WHERE Username = @Username AND Password = @Password AND Role = @Role";
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    string query = @"SELECT UserID, Username FROM Users 
+                                   WHERE Username = @Username AND Password = @Password AND Role = @Role";
+                    
+                    using (var cmd = new SqlCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("@Username", username);
-                        cmd.Parameters.AddWithValue("@Password", HashPassword(password));
+                        cmd.Parameters.AddWithValue("@Password", password);
                         cmd.Parameters.AddWithValue("@Role", role);
-                        
-                        using (SqlDataReader reader = cmd.ExecuteReader())
+
+                        using (var reader = cmd.ExecuteReader())
                         {
                             if (reader.Read())
                             {
                                 int userId = reader.GetInt32(0);
                                 string dbUsername = reader.GetString(1);
-
+                                
                                 this.Hide();
                                 Form dashboard = null;
 
@@ -364,19 +366,16 @@ namespace Project_College_App
                                 {
                                     dashboard.FormClosed += (s, args) => this.Close();
                                     dashboard.Show();
+                                    return true;
                                 }
-                                return true;
-                            }
-                            else
-                            {
-                                return false;
                             }
                         }
+                        return false;
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Database error: {ex.Message}", "Error", 
+                    MessageBox.Show($"Login Error: {ex.Message}", "Error", 
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }

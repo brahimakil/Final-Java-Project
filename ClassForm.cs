@@ -7,37 +7,46 @@ using Guna.UI2.WinForms;
 
 namespace Project_College_App
 {
-    public class ClassForm : Form
+    public partial class ClassForm : Form
     {
+        private bool isAdminMode;
+        private int? teacherId;
+        private int? classId;
         private Guna2TextBox txtClassName;
-        private Guna2ComboBox cmbTeacher;
+        private Guna2ComboBox cmbTeachers;
         private Guna2Button btnSave;
         private Guna2Button btnCancel;
-        private int? classId;
 
-        public ClassForm(int? editClassId = null)
+        // Constructor for teacher mode
+        public ClassForm(int teacherId, int? classId = null)
         {
-            classId = editClassId;
+            this.isAdminMode = false;
+            this.teacherId = teacherId;
+            this.classId = classId;
             InitializeComponents();
-            LoadTeachers();
             if (classId.HasValue)
             {
                 LoadClassData();
-                this.Text = "Edit Class";
             }
-            else
-            {
-                this.Text = "Add Class";
-            }
+        }
+
+        // Constructor for admin mode
+        public ClassForm()
+        {
+            this.isAdminMode = true;
+            this.teacherId = null;
+            InitializeComponents();
+            LoadTeachers();
         }
 
         private void InitializeComponents()
         {
-            this.Size = new Size(400, 250);
+            this.Size = new Size(400, isAdminMode ? 250 : 200);
             this.StartPosition = FormStartPosition.CenterParent;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
+            this.Text = classId.HasValue ? "Edit Class" : "Add New Class";
 
             var panel = new TableLayoutPanel
             {
@@ -49,22 +58,26 @@ namespace Project_College_App
 
             txtClassName = new Guna2TextBox
             {
-                PlaceholderText = "Class Name",
-                Size = new Size(300, 36),
-                BorderRadius = 5
+                PlaceholderText = "Enter class name",
+                BorderRadius = 5,
+                Font = new Font("Segoe UI", 10),
+                Size = new Size(350, 36)
             };
 
-            cmbTeacher = new Guna2ComboBox
+            cmbTeachers = new Guna2ComboBox
             {
-                Text = "Select Teacher",
-                Size = new Size(300, 36),
-                BorderRadius = 5
+                BorderRadius = 5,
+                Font = new Font("Segoe UI", 10),
+                Size = new Size(350, 36),
+                Visible = isAdminMode
             };
 
             var buttonPanel = new FlowLayoutPanel
             {
                 FlowDirection = FlowDirection.RightToLeft,
-                AutoSize = true
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Margin = new Padding(0, 20, 0, 0)
             };
 
             btnSave = new Guna2Button
@@ -72,7 +85,9 @@ namespace Project_College_App
                 Text = "Save",
                 Size = new Size(100, 36),
                 BorderRadius = 5,
-                FillColor = Color.FromArgb(94, 148, 255)
+                FillColor = Color.FromArgb(94, 148, 255),
+                Font = new Font("Segoe UI", 9, FontStyle.Bold),
+                Margin = new Padding(0, 0, 10, 0)
             };
 
             btnCancel = new Guna2Button
@@ -85,37 +100,11 @@ namespace Project_College_App
             };
 
             buttonPanel.Controls.AddRange(new Control[] { btnSave, btnCancel });
-            panel.Controls.AddRange(new Control[] { txtClassName, cmbTeacher, buttonPanel });
+            panel.Controls.AddRange(new Control[] { txtClassName, cmbTeachers, buttonPanel });
             this.Controls.Add(panel);
 
             btnSave.Click += BtnSave_Click;
             btnCancel.Click += (s, e) => this.Close();
-        }
-
-        private void LoadTeachers()
-        {
-            string connectionString = @"Server=desktop-hm9h3t3\sqlexpress;Database=QuizMakerDB;Integrated Security=True;TrustServerCertificate=True;";
-            using (var conn = new SqlConnection(connectionString))
-            {
-                try
-                {
-                    conn.Open();
-                    string query = "SELECT UserID, Username FROM Users WHERE Role = 'Teacher'";
-                    SqlDataAdapter adapter = new SqlDataAdapter(query, conn);
-                    DataTable dt = new DataTable();
-                    adapter.Fill(dt);
-
-                    cmbTeacher.DisplayMember = "Username";
-                    cmbTeacher.ValueMember = "UserID";
-                    cmbTeacher.DataSource = dt;
-                    cmbTeacher.SelectedIndex = -1;
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error loading teachers: {ex.Message}", "Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
         }
 
         private void LoadClassData()
@@ -134,7 +123,6 @@ namespace Project_College_App
                         if (reader.Read())
                         {
                             txtClassName.Text = reader["ClassName"].ToString();
-                            cmbTeacher.SelectedValue = reader["TeacherID"];
                         }
                     }
                 }
@@ -146,11 +134,45 @@ namespace Project_College_App
             }
         }
 
+        private void LoadTeachers()
+        {
+            string connectionString = @"Server=desktop-hm9h3t3\sqlexpress;Database=QuizMakerDB;Integrated Security=True;TrustServerCertificate=True;";
+            using (var conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    string query = "SELECT UserID, Username FROM Users WHERE Role = 'Teacher'";
+                    using (var cmd = new SqlCommand(query, conn))
+                    {
+                        var adapter = new SqlDataAdapter(cmd);
+                        var dt = new DataTable();
+                        adapter.Fill(dt);
+                        cmbTeachers.DataSource = dt;
+                        cmbTeachers.DisplayMember = "Username";
+                        cmbTeachers.ValueMember = "UserID";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error loading teachers: {ex.Message}", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
         private void BtnSave_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtClassName.Text) || cmbTeacher.SelectedValue == null)
+            if (string.IsNullOrWhiteSpace(txtClassName.Text))
             {
-                MessageBox.Show("Please fill in all required fields.", "Validation Error",
+                MessageBox.Show("Please enter a class name.", "Validation Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (isAdminMode && cmbTeachers.SelectedValue == null)
+            {
+                MessageBox.Show("Please select a teacher.", "Validation Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -166,23 +188,30 @@ namespace Project_College_App
                 try
                 {
                     conn.Open();
+                    string query;
                     SqlCommand cmd;
 
                     if (classId.HasValue)
                     {
-                        cmd = new SqlCommand(@"UPDATE Classes 
-                                             SET ClassName = @ClassName, TeacherID = @TeacherID 
-                                             WHERE ClassID = @ClassID", conn);
-                        cmd.Parameters.AddWithValue("@ClassID", classId);
+                        query = "UPDATE Classes SET ClassName = @ClassName WHERE ClassID = @ClassID";
+                        if (isAdminMode)
+                        {
+                            query = "UPDATE Classes SET ClassName = @ClassName, TeacherID = @TeacherID WHERE ClassID = @ClassID";
+                        }
                     }
                     else
                     {
-                        cmd = new SqlCommand(@"INSERT INTO Classes (ClassName, TeacherID, CreatedAt, IsActive) 
-                                             VALUES (@ClassName, @TeacherID, GETDATE(), 1)", conn);
+                        query = "INSERT INTO Classes (ClassName, TeacherID) VALUES (@ClassName, @TeacherID)";
                     }
 
-                    cmd.Parameters.AddWithValue("@ClassName", txtClassName.Text);
-                    cmd.Parameters.AddWithValue("@TeacherID", cmbTeacher.SelectedValue);
+                    cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@ClassName", txtClassName.Text.Trim());
+                    cmd.Parameters.AddWithValue("@TeacherID", isAdminMode ? Convert.ToInt32(cmbTeachers.SelectedValue) : teacherId.Value);
+
+                    if (classId.HasValue)
+                    {
+                        cmd.Parameters.AddWithValue("@ClassID", classId.Value);
+                    }
 
                     cmd.ExecuteNonQuery();
                     this.DialogResult = DialogResult.OK;

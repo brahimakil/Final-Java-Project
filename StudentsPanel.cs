@@ -152,6 +152,7 @@ namespace Project_College_App
             btnAdd.Click += BtnAdd_Click;
             btnEdit.Click += BtnEdit_Click;
             btnDelete.Click += BtnDelete_Click;
+            dgvStudents.SelectionChanged += DgvStudents_SelectionChanged;
 
             this.Resize += (s, e) =>
             {
@@ -288,6 +289,13 @@ namespace Project_College_App
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+        }
+
+        private void DgvStudents_SelectionChanged(object sender, EventArgs e)
+        {
+            bool hasSelection = dgvStudents.SelectedRows.Count > 0;
+            btnEdit.Enabled = hasSelection;
+            btnDelete.Enabled = hasSelection;
         }
     }
 } 

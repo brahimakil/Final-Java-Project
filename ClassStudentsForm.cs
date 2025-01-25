@@ -119,7 +119,11 @@ namespace Project_College_App
                 try
                 {
                     conn.Open();
-                    string query = @"SELECT DISTINCT u.UserID, u.Username as 'Student Name', u.Email 
+                    string query = @"SELECT DISTINCT 
+                                   u.UserID,
+                                   u.Username as 'Student Name',
+                                   u.Email,
+                                   u.CreatedAt as 'Join Date'
                                    FROM Users u
                                    INNER JOIN StudentClasses sc ON u.UserID = sc.StudentID
                                    WHERE sc.ClassID = @ClassID
@@ -132,6 +136,19 @@ namespace Project_College_App
                         DataTable dt = new DataTable();
                         adapter.Fill(dt);
                         dgvStudents.DataSource = dt;
+
+                        // Configure columns
+                        if (dgvStudents.Columns.Contains("UserID"))
+                            dgvStudents.Columns["UserID"].Visible = false;
+                        if (dgvStudents.Columns.Contains("Student Name"))
+                            dgvStudents.Columns["Student Name"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                        if (dgvStudents.Columns.Contains("Email"))
+                            dgvStudents.Columns["Email"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                        if (dgvStudents.Columns.Contains("Join Date"))
+                        {
+                            dgvStudents.Columns["Join Date"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                            dgvStudents.Columns["Join Date"].DefaultCellStyle.Format = "dd/MM/yyyy";
+                        }
                     }
                 }
                 catch (Exception ex)

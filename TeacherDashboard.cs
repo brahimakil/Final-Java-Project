@@ -22,6 +22,7 @@ namespace Project_College_App
         private Guna2Panel headerPanel;
         private Guna2ShadowForm shadowForm;
         private int teacherId;
+        private Guna2Button btnClasses;
 
         public TeacherDashboard(int teacherId, string teacherName)
         {
@@ -33,30 +34,39 @@ namespace Project_College_App
 
         private void InitializeComponents()
         {
-            this.Size = new Size(1200, 800);
+            this.Size = new Size(1400, 900);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.None;
 
-            // Initialize main panels
             sidePanel = new Guna2Panel
             {
-                Width = 250,
+                Width = 280,
                 Dock = DockStyle.Left,
-                FillColor = Color.FromArgb(45, 45, 45),
+                FillColor = Color.FromArgb(30, 41, 59),  // Darker blue theme
                 Padding = new Padding(0, 0, 0, 20)
             };
 
             mainPanel = new Guna2Panel
             {
                 Dock = DockStyle.Fill,
-                BackColor = Color.FromArgb(245, 246, 247)
+                BackColor = Color.FromArgb(241, 245, 249),  // Light gray background
+                Padding = new Padding(30, 20, 30, 20)
             };
 
-            // Add controls to form
-            this.Controls.AddRange(new Control[] { sidePanel, mainPanel });
+            // Add shadow effect
+            shadowForm = new Guna2ShadowForm(this)
+            {
+                BorderRadius = 15
+            };
+            shadowForm.SetShadowForm(this);
 
-            // Load initial panel
-            mainPanel.Controls.Add(new TeacherCoursesPanel(teacherId));
+            this.Controls.AddRange(new Control[] { sidePanel, mainPanel });
+            
+            var classesPanel = new ClassesPanel(teacherId)
+            {
+                Dock = DockStyle.Fill
+            };
+            mainPanel.Controls.Add(classesPanel);
         }
 
         private void CustomizeComponents()
@@ -91,38 +101,29 @@ namespace Project_College_App
                 BackColor = Color.Transparent
             };
 
-            // Navigation container
-            var navContainer = new FlowLayoutPanel
-            {
-                Dock = DockStyle.Top,
-                AutoSize = true,
-                FlowDirection = FlowDirection.TopDown,
-                WrapContents = false,
-                BackColor = Color.Transparent,
-                Padding = new Padding(0, 20, 0, 0)
-            };
-
-            btnCourses = CreateMenuButton("My Courses", IconChar.BookOpen);
+            // Keep only Classes and Logout buttons
+            btnClasses = CreateMenuButton("Classes", IconChar.ChalkboardTeacher);
             btnLogout = CreateMenuButton("Logout", IconChar.SignOutAlt);
             btnLogout.FillColor = Color.FromArgb(220, 53, 69);
             btnLogout.Dock = DockStyle.Bottom;
 
-            // Add controls to containers
             profileContainer.Controls.AddRange(new Control[] { profilePicture, lblUserName });
-            navContainer.Controls.Add(btnCourses);
-
-            // Add all sections to side panel
+            
             sidePanel.Controls.AddRange(new Control[] { 
                 profileContainer,
-                navContainer,
+                btnClasses,
                 btnLogout
             });
 
             // Add event handlers
-            btnCourses.Click += (s, e) =>
+            btnClasses.Click += (s, e) =>
             {
                 mainPanel.Controls.Clear();
-                mainPanel.Controls.Add(new TeacherCoursesPanel(teacherId));
+                var classesPanel = new ClassesPanel(teacherId)
+                {
+                    Dock = DockStyle.Fill
+                };
+                mainPanel.Controls.Add(classesPanel);
             };
 
             btnLogout.Click += (s, e) =>

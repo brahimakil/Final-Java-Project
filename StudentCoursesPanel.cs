@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using Guna.UI2.WinForms;
 using FontAwesome.Sharp;
@@ -11,49 +12,71 @@ namespace Project_College_App
     public class StudentCoursesPanel : Guna2Panel
     {
         private Guna2DataGridView dgvCourses;
-        private Guna2DataGridView dgvQuizzes;
-        private Guna2TextBox txtSearch;
-        private Guna2Button btnTakeQuiz;
-        private Guna2Button btnViewResults;
         private Label lblCourses;
-        private Label lblQuizzes;
         private int studentId;
+        private string connectionString;
+        private int userId;
 
         public StudentCoursesPanel(int studentId)
         {
             this.studentId = studentId;
+            connectionString = @"Server=desktop-hm9h3t3\sqlexpress;Database=QuizMakerDB;Integrated Security=True;TrustServerCertificate=True;";
+            userId = studentId;
             InitializeComponents();
             LoadCourses();
-            LoadQuizzes();
         }
 
         private void InitializeComponents()
         {
             this.Dock = DockStyle.Fill;
-            this.Padding = new Padding(20);
+            this.Padding = new Padding(40);
 
             var mainContainer = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
                 ColumnCount = 1,
-                RowCount = 4,
-                Padding = new Padding(0),
-                RowStyles = 
-                {
-                    new RowStyle(SizeType.AutoSize),
-                    new RowStyle(SizeType.Percent, 45),
-                    new RowStyle(SizeType.AutoSize),
-                    new RowStyle(SizeType.Percent, 55)
+                RowCount = 2,
+                RowStyles = {
+                    new RowStyle(SizeType.Absolute, 60),
+                    new RowStyle(SizeType.Percent, 100)
                 }
             };
 
-            // Courses section
+            // Header label panel
+            var headerPanel = new Guna2Panel
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Padding(0, 0, 0, 10)
+            };
+
             lblCourses = new Label
             {
                 Text = "My Enrolled Courses",
                 Font = new Font("Segoe UI Semibold", 14),
                 ForeColor = Color.FromArgb(64, 64, 64),
-                Margin = new Padding(0, 0, 0, 10)
+                AutoSize = true,
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                Location = new Point(600, 10)  // Shifted to the right
+            };
+
+            headerPanel.Controls.Add(lblCourses);
+
+            // Grid container with shadow
+            var gridContainer = new Guna2Panel
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Padding(25, 25, 25, 25),
+                BackColor = Color.White,
+                Margin = new Padding(0, 20, 0, 0),
+                ShadowDecoration = { Enabled = true, Depth = 1, Color = Color.FromArgb(10, 0, 0, 0) }
+            };
+
+            var gridWrapper = new Panel
+            {
+                Dock = DockStyle.Right,
+                Width = 800,
+                Padding = new Padding(0),
+                AutoScroll = true
             };
 
             dgvCourses = new Guna2DataGridView
@@ -69,10 +92,10 @@ namespace Project_College_App
                 ColumnHeadersHeight = 50,
                 RowTemplate = { Height = 45 },
                 BackgroundColor = Color.White,
-                BorderStyle = BorderStyle.None,
                 CellBorderStyle = DataGridViewCellBorderStyle.Single,
                 GridColor = Color.FromArgb(231, 229, 255),
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None,
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
                 {
                     BackColor = Color.FromArgb(242, 242, 242),
@@ -82,101 +105,36 @@ namespace Project_College_App
                 },
                 EnableHeadersVisualStyles = false,
                 AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
                 ReadOnly = true,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                ScrollBars = ScrollBars.Both
             };
 
-            // Quizzes section
-            lblQuizzes = new Label
-            {
-                Text = "Available Quizzes",
-                Font = new Font("Segoe UI Semibold", 14),
-                ForeColor = Color.FromArgb(64, 64, 64),
-                Margin = new Padding(0, 20, 0, 10)
-            };
-
-            var quizButtonPanel = new FlowLayoutPanel
-            {
-                AutoSize = true,
-                FlowDirection = FlowDirection.LeftToRight,
-                Margin = new Padding(0, 0, 0, 10)
-            };
-
-            btnTakeQuiz = new Guna2Button
-            {
-                Text = "Take Quiz",
-                Image = IconChar.Edit.ToBitmap(Color.White, 20),
-                ImageAlign = HorizontalAlignment.Left,
-                ImageSize = new Size(20, 20),
-                Size = new Size(120, 36),
-                BorderRadius = 5,
-                FillColor = Color.FromArgb(94, 148, 255),
-                Font = new Font("Segoe UI", 9, FontStyle.Bold),
-                Enabled = false
-            };
-
-            btnViewResults = new Guna2Button
-            {
-                Text = "View Results",
-                Image = IconChar.ChartBar.ToBitmap(Color.White, 20),
-                ImageAlign = HorizontalAlignment.Left,
-                ImageSize = new Size(20, 20),
-                Size = new Size(120, 36),
-                BorderRadius = 5,
-                FillColor = Color.FromArgb(75, 68, 83),
-                Font = new Font("Segoe UI", 9, FontStyle.Bold),
-                Margin = new Padding(10, 0, 0, 0),
-                Enabled = false
-            };
-
-            quizButtonPanel.Controls.AddRange(new Control[] { btnTakeQuiz, btnViewResults });
-
-            dgvQuizzes = new Guna2DataGridView
-            {
-                Dock = DockStyle.Fill,
-                DefaultCellStyle = dgvCourses.DefaultCellStyle.Clone(),
-                ColumnHeadersHeight = 50,
-                RowTemplate = { Height = 45 },
-                BackgroundColor = Color.White,
-                BorderStyle = BorderStyle.None,
-                CellBorderStyle = DataGridViewCellBorderStyle.Single,
-                GridColor = Color.FromArgb(231, 229, 255),
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                ColumnHeadersDefaultCellStyle = dgvCourses.ColumnHeadersDefaultCellStyle.Clone(),
-                EnableHeadersVisualStyles = false,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                ReadOnly = true,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect
-            };
-
-            mainContainer.Controls.Add(lblCourses, 0, 0);
-            mainContainer.Controls.Add(dgvCourses, 0, 1);
-            mainContainer.Controls.Add(lblQuizzes, 0, 2);
-            mainContainer.Controls.Add(quizButtonPanel, 0, 2);
-            mainContainer.Controls.Add(dgvQuizzes, 0, 3);
-
+            // Add controls in the correct hierarchy
+            gridWrapper.Controls.Add(dgvCourses);
+            gridContainer.Controls.Add(gridWrapper);
+            mainContainer.Controls.Add(headerPanel, 0, 0);
+            mainContainer.Controls.Add(gridContainer, 0, 1);
             this.Controls.Add(mainContainer);
 
-            // Event handlers
-            dgvQuizzes.SelectionChanged += DgvQuizzes_SelectionChanged;
-            btnTakeQuiz.Click += BtnTakeQuiz_Click;
-            btnViewResults.Click += BtnViewResults_Click;
+            dgvCourses.CellClick += DgvCourses_CellClick;
         }
 
         private void LoadCourses()
         {
-            string connectionString = @"Server=desktop-hm9h3t3\sqlexpress;Database=QuizMakerDB;Integrated Security=True;TrustServerCertificate=True;";
             using (var conn = new SqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
-                    string query = @"SELECT c.ClassID, c.ClassName, u.Username as TeacherName
-                                   FROM Classes c
-                                   INNER JOIN StudentClasses sc ON c.ClassID = sc.ClassID
-                                   INNER JOIN Users u ON c.TeacherID = u.UserID
+                    string query = @"SELECT c.ClassID, c.ClassName, t.Username as Teacher,
+                                   CASE WHEN EXISTS (
+                                       SELECT 1 FROM Quizzes q 
+                                       WHERE q.ClassID = c.ClassID AND q.IsActive = 1
+                                   ) THEN 'Yes' ELSE 'No' END as HasActiveQuiz
+                                   FROM StudentClasses sc
+                                   JOIN Classes c ON sc.ClassID = c.ClassID
+                                   JOIN Users t ON c.TeacherID = t.UserID
                                    WHERE sc.StudentID = @StudentID";
 
                     using (var cmd = new SqlCommand(query, conn))
@@ -185,7 +143,28 @@ namespace Project_College_App
                         var adapter = new SqlDataAdapter(cmd);
                         var dt = new DataTable();
                         adapter.Fill(dt);
+
+                        // Add DoQuiz button column
+                        var buttonColumn = new DataGridViewButtonColumn
+                        {
+                            Name = "DoQuiz",
+                            Text = "Do Quiz",
+                            UseColumnTextForButtonValue = true
+                        };
+                        dgvCourses.Columns.Add(buttonColumn);
+
                         dgvCourses.DataSource = dt;
+
+                        // Configure button visibility based on HasActiveQuiz
+                        foreach (DataGridViewRow row in dgvCourses.Rows)
+                        {
+                            var hasActiveQuiz = row.Cells["HasActiveQuiz"].Value.ToString();
+                            if (hasActiveQuiz == "No")
+                            {
+                                row.Cells["DoQuiz"].Value = string.Empty;
+                                row.Cells["DoQuiz"].ReadOnly = true;
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -196,80 +175,97 @@ namespace Project_College_App
             }
         }
 
-        private void LoadQuizzes()
+        private void DgvCourses_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0 && e.ColumnIndex == dgvCourses.Columns["DoQuiz"].Index)
+            {
+                int classId = Convert.ToInt32(dgvCourses.Rows[e.RowIndex].Cells["ClassID"].Value);
+                
+                // First check if student has already taken the quiz
+                if (HasStudentTakenQuiz(classId))
+                {
+                    MessageBox.Show("You have already taken this quiz.", "Quiz Completed",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                // Then check if there's an active quiz
+                if (!HasActiveQuiz(classId))
+                {
+                    MessageBox.Show("There is no active quiz available for this class.", "No Quiz",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                using (var conn = new SqlConnection(connectionString))
+                {
+                    try
+                    {
+                        conn.Open();
+                        string query = "SELECT QuizID FROM Quizzes WHERE ClassID = @ClassID AND IsActive = 1";
+                        using (var cmd = new SqlCommand(query, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@ClassID", classId);
+                            var quizId = Convert.ToInt32(cmd.ExecuteScalar());
+
+                            using (var quizForm = new QuizTakingForm(quizId, userId))
+                            {
+                                quizForm.ShowDialog();
+                                if (quizForm.DialogResult == DialogResult.OK)
+                                {
+                                    LoadCourses();
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error loading quiz: {ex.Message}", "Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
+        private bool HasStudentTakenQuiz(int quizId)
         {
             string connectionString = @"Server=desktop-hm9h3t3\sqlexpress;Database=QuizMakerDB;Integrated Security=True;TrustServerCertificate=True;";
-            using (var conn = new SqlConnection(connectionString))
+            using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
-                    string query = @"SELECT q.QuizID, q.Title, q.Description, q.TimeLimit, q.PassingScore,
-                                   CASE WHEN qr.ResultID IS NULL THEN 'Not Attempted' 
-                                        ELSE 'Completed' END as Status
-                                   FROM Quizzes q
-                                   LEFT JOIN QuizResults qr ON q.QuizID = qr.QuizID 
-                                   AND qr.UserID = @StudentID
-                                   WHERE q.IsActive = 1";
+                    string query = @"SELECT COUNT(*) FROM QuizResults 
+                                   WHERE QuizID = @QuizID AND UserID = @StudentID";
 
-                    using (var cmd = new SqlCommand(query, conn))
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
+                        cmd.Parameters.AddWithValue("@QuizID", quizId);
                         cmd.Parameters.AddWithValue("@StudentID", studentId);
-                        var adapter = new SqlDataAdapter(cmd);
-                        var dt = new DataTable();
-                        adapter.Fill(dt);
-                        dgvQuizzes.DataSource = dt;
+                        int count = (int)cmd.ExecuteScalar();
+                        return count > 0;
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error loading quizzes: {ex.Message}", "Error",
+                    MessageBox.Show($"Error checking quiz status: {ex.Message}", "Error", 
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
                 }
             }
         }
 
-        private void DgvQuizzes_SelectionChanged(object sender, EventArgs e)
+        private bool HasActiveQuiz(int classId)
         {
-            bool hasSelection = dgvQuizzes.SelectedRows.Count > 0;
-            if (hasSelection)
+            string connectionString = @"Server=desktop-hm9h3t3\sqlexpress;Database=QuizMakerDB;Integrated Security=True;TrustServerCertificate=True;";
+            using (var conn = new SqlConnection(connectionString))
             {
-                string status = dgvQuizzes.SelectedRows[0].Cells["Status"].Value.ToString();
-                btnTakeQuiz.Enabled = status == "Not Attempted";
-                btnViewResults.Enabled = status == "Completed";
-            }
-            else
-            {
-                btnTakeQuiz.Enabled = false;
-                btnViewResults.Enabled = false;
-            }
-        }
-
-        private void BtnTakeQuiz_Click(object sender, EventArgs e)
-        {
-            if (dgvQuizzes.SelectedRows.Count > 0)
-            {
-                int quizId = Convert.ToInt32(dgvQuizzes.SelectedRows[0].Cells["QuizID"].Value);
-                // TODO: Implement QuizForm
-                using (var form = new QuizForm(quizId, studentId))
+                conn.Open();
+                string query = "SELECT COUNT(*) FROM Quizzes WHERE ClassID = @ClassID AND IsActive = 1";
+                using (var cmd = new SqlCommand(query, conn))
                 {
-                    if (form.ShowDialog() == DialogResult.OK)
-                    {
-                        LoadQuizzes();
-                    }
-                }
-            }
-        }
-
-        private void BtnViewResults_Click(object sender, EventArgs e)
-        {
-            if (dgvQuizzes.SelectedRows.Count > 0)
-            {
-                int quizId = Convert.ToInt32(dgvQuizzes.SelectedRows[0].Cells["QuizID"].Value);
-                // TODO: Implement QuizResultForm
-                using (var form = new QuizResultForm(quizId, studentId))
-                {
-                    form.ShowDialog();
+                    cmd.Parameters.AddWithValue("@ClassID", classId);
+                    return (int)cmd.ExecuteScalar() > 0;
                 }
             }
         }

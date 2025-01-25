@@ -33,23 +33,24 @@ namespace Project_College_App
 
         private void InitializeComponents()
         {
-            this.Size = new Size(1200, 800);
+            this.Size = new Size(1400, 900);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.None;
 
             // Initialize main panels
             sidePanel = new Guna2Panel
             {
-                Width = 250,
+                Width = 280,
                 Dock = DockStyle.Left,
-                FillColor = Color.FromArgb(45, 45, 45),
+                FillColor = Color.FromArgb(30, 41, 59),
                 Padding = new Padding(0, 0, 0, 20)
             };
 
             mainPanel = new Guna2Panel
             {
                 Dock = DockStyle.Fill,
-                BackColor = Color.FromArgb(245, 246, 247)
+                BackColor = Color.FromArgb(241, 245, 249),
+                Padding = new Padding(30, 20, 30, 20)
             };
 
             // Add controls to form
